@@ -30,7 +30,7 @@ jobs:
     permissions:
       contents: write
     strategy:
-      fail-fast: true # false
+      fail-fast: false
       matrix:
         include:
           # - platform: 'macos-latest' # for Arm based macs (M1 and above).
@@ -71,12 +71,15 @@ jobs:
           name: vfs-artifact
           path: src/assets
 
-      - name: display src/assets
-        if: matrix.platform == 'ubuntu-22.04'
-        run: ls -la src/assets
-
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.
+
+      # https://github.com/tauri-apps/tauri/issues/7087
+      - name: try to install tauri-cli manually
+        if: matrix.platform != 'ubuntu-22.04'
+        run: |
+          ls -la src/assets
+          cargo install tauri-cli@^2.0.0-beta
 
       - uses: tauri-apps/tauri-action@v0
         env:
