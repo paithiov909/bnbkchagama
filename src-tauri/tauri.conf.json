@@ -1,0 +1,45 @@
+{
+  "productName": "bnbkchagama",
+  "version": "0.0.0",
+  "identifier": "com.paithiov909.bnbkchagama",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Bnbkchagama",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "assetProtocol": {
+        "enable": false,
+        "scope": ["$RESOURCE/resources"]
+      },
+      "csp": {
+        "default-src": "'self' asset: https://asset.localhost https://webr.r-wasm.org/",
+        "script-src": "'self' 'unsafe-eval' asset: https://asset.localhost https://webr.r-wasm.org/",
+        "worker-src": "'self' 'unsafe-eval' blob: asset: https://asset.localhost https://webr.r-wasm.org/"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["deb"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "resources/*": "resources"
+    }
+  }
+}

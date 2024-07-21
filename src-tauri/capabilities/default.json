@@ -1,0 +1,27 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "local": true,
+  "remote": {
+    "urls": ["https://webr.r-wasm.org/"]
+  },
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "path:default",
+    "event:default",
+    "event:allow-listen",
+    "window:default",
+    "app:default",
+    "image:default",
+    "resources:default",
+    "menu:default",
+    "tray:default",
+    "shell:allow-open",
+    "log:default",
+    "fs:default",
+    "fs:allow-resource-read-recursive"
+  ]
+}
