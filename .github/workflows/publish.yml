@@ -78,7 +78,6 @@ jobs:
       - name: try to install tauri-cli manually
         if: matrix.platform != 'ubuntu-22.04'
         run: |
-          ls -la src/assets
           cargo install tauri-cli@^2.0.0-beta
 
       - uses: tauri-apps/tauri-action@v0
