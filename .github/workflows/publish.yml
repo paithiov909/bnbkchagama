@@ -71,14 +71,17 @@ jobs:
           name: vfs-artifact
           path: src/assets
 
+      # https://github.com/tauri-apps/tauri/issues/7087
+      - name: remove package-lock (windows)
+        if: matrix.platform == 'windows-latest'
+        run: del package-lock.json
+
+      - name: remove package-lock (macos)
+        if: matrix.platform == 'macos-latest'
+        run: rm package-lock.json
+
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.
-
-      # https://github.com/tauri-apps/tauri/issues/7087
-      - name: try to install tauri-cli manually
-        if: matrix.platform != 'ubuntu-22.04'
-        run: |
-          npm install -D @tauri-apps/cli@next
 
       - uses: tauri-apps/tauri-action@v0
         env:
