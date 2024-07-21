@@ -69,11 +69,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: vfs-artifact
-          path: $GITHUB_WORKSPACE/src/assets
+          path: src/assets
 
       - name: display src/assets
         if: matrix.platform == 'ubuntu-22.04'
-        run: ls -la $GITHUB_WORKSPACE/src/assets
+        run: ls -la src/assets
 
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.
