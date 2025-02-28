@@ -1,111 +1,122 @@
-import { useState, useEffect } from "react";
-import {
-  // convertFileSrc,
-  invoke
-} from "@tauri-apps/api/core";
-import {
-  // trace,
-  info,
-  // error,
-  attachConsole
-} from "@tauri-apps/plugin-log";
-import { WebR, ChannelType, FSMountOptions, RString } from "webr";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { WebR, RCharacter } from "webr";
+import { Tensor, FeatureExtractionPipeline } from '@huggingface/transformers';
 
-import "./App.css";
+import { FEExtractor, WebRInstance } from "./Wrapper";
 
-let webR: WebR;
-let didInit = false;
+import "@unocss/reset/tailwind-compat.css?url";
+import "./mvp.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+export const App = () => {
+  const webr = useRef<WebR | null>(null);
+  const extractor = useRef<FeatureExtractionPipeline | null>(null);
+  const [target, setTarget] = useState("");
+  const [msg, setMsg] = useState("モデルのダウンロードが終われば検索できます");
+  const [result, setResult] = useState<(string | null)[]>([]);
+  const [isWebRInitialized, setIsWebRInitialized] = useState(false);
+  const [isPipelineInitialized, setIsPipelineInitialized] = useState(false);
+
+  const initWebR = useCallback(async () => {
+    if (!webr.current) {
+      // Initializes the WebR instance and mounts the bundled packages
+      console.info("Initializing WebR...");
+      webr.current = await WebRInstance.getInstance();
+      setIsWebRInitialized(true);
+      console.info("WebR initialized🚀");
+    }
+  }, [])
+  const initExtractor = useCallback(async () => {
+    if (!extractor.current) {
+      console.info("Initializing extractor...");
+      extractor.current = await FEExtractor.getInstance();
+      setIsPipelineInitialized(true);
+      console.info("Extractor initialized✨")
+    }
+  }, [])
 
   useEffect(() => {
-    // Initializes the WebR instance and mounts the bundled packages
-    async function initWebR() {
-      webR = new WebR({
-        baseUrl: "https://webr.r-wasm.org/v0.4.0/",
-        serviceWorkerUrl: "https://webr.r-wasm.org/v0.4.0/webr-worker.js",
-        channelType: ChannelType.PostMessage
+    initWebR()
+    initExtractor()
+  })
+
+  async function search() {
+    if (extractor.current && webr.current) {
+      const embedding: Tensor = await extractor.current._call(target, {
+        pooling: 'mean', normalize: true
       });
-      const libData = await fetch(new URL("./assets/library.data", import.meta.url).href);
-      const libMeta = await fetch(new URL("./assets/library.js.metadata", import.meta.url).href);
-      const options: FSMountOptions = {
-        packages: [{
-          blob: await libData.blob(),
-          metadata: await libMeta.json()
-        }]
-      };
-      await webR.init();
-      await webR.FS.mkdir("/data");
-      await webR.FS.mount("WORKERFS", options, '/data');
-      await webR.evalR(".libPaths(c(.libPaths(), '/data'))");
-    }
-    if (!didInit) {
-      initWebR();
-      setGreetMsg("WebR initialized");
-      didInit = true;
-    }
-  });
+      // Needs to once convert to array,
+      // otherwise it will be casted to a raw vector.
+      await webr.current.objs.globalEnv.bind('input', Array.from(embedding.data));
 
-  async function greet() {
-    const detach = await attachConsole();
-
-    // tauri command
-    const greeting = await invoke("greet", { name }) as string;
-
-    // eval R codes with WebR
-    const shelter = await new webR.Shelter();
-    try {
-      const env = await new shelter.REnvironment({
-        greeting: greeting
-      });
-      const ret = await shelter.evalR("paste(list.files('/data'), collapse = ', ')") as RString;
-      info(`Bundled packages: ${await ret.toString()}`);
-
-      const pasted = await shelter.evalR("paste(greeting, '(and from WebR!)')", {
-        env
-      }) as RString;
-      setGreetMsg(await pasted.toString());
-    } finally {
-      await shelter.purge();
-      detach();
+      // Evaluate R code inside a shelter
+      const shelter = await new webr.current.Shelter();
+      try {
+        const msgTitle = `『${target}』に似合うかもしれない称号は...`
+        setMsg(msgTitle);
+        const suggests = await shelter.evalR(`
+          mat <- predict(pri, matrix(input, nrow = 1, ncol = 1024))
+          suggestions <- hnsw_search(matrix(mat[1, 1:50], nrow = 1), idx, k = 8)
+          labels[as.integer(suggestions[["idx"]])]
+        `) as RCharacter;
+        const ret = await suggests.toArray();
+        // console.log(ret);
+        setResult(ret);
+      } finally {
+        await shelter.purge();
+      }
     }
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
-    </div>
+    <>
+      <main className="max-w-lg">
+        <header>
+          <h1>グラブル称号検索</h1>
+          <p>LLMを使って『あなたの名前』に似合いそうなグラブルの称号を検索できます</p>
+        </header>
+        <section>
+          <form
+            className="grid place-items-center"
+            onSubmit={(e) => {
+              e.preventDefault();
+              search();
+            }}
+          >
+            <label className="mb-6">
+              <span className="text-color-red-500">【注意】</span>
+              このWebアプリはバカのためのアプリなので、
+              <span className="underline">アクセスするだけで、600MB程度のアセットのダウンロードが始まります</span>。
+              使いたくない場合、このページを閉じてください
+            </label>
+            <input
+              id="search"
+              type="text"
+              maxLength={16}
+              onChange={(e) => setTarget(e.currentTarget.value)}
+              placeholder="あなたの名前"
+            />
+            <button
+              type="submit"
+              disabled={!(isWebRInitialized && isPipelineInitialized)}
+            >検索</button>
+          </form>
+        </section>
+        <section className="min-h-60">
+          <article>
+            <h3>{msg}</h3>
+            <ul>
+              {result?.map((r, i) => (
+                <li key={i}>{r}</li>
+              ))}
+            </ul>
+          </article>
+        </section>
+      </main>
+      <footer className="grid place-content-center">
+        <div>
+          <p>paithiov909</p>
+        </div>
+      </footer>
+    </>
   );
 }
-
-export default App;

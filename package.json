@@ -1,7 +1,7 @@
 {
   "name": "bnbkchagama",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,14 +16,17 @@
     "@tauri-apps/plugin-shell": ">=2.0.0-beta.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "webr": "^0.4.0"
+    "webr": "0.4.2"
   },
   "devDependencies": {
+    "@huggingface/transformers": "^3.3.3",
     "@tauri-apps/cli": "^2.0.0-beta.22",
+    "@types/node": "^22.13.5",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.2.2",
+    "unocss": "^66.1.0-beta.3",
     "vite": "^6.2.0"
   }
 }

@@ -1,6 +1,10 @@
 {
 	"name": "WebR",
-	"image": "ghcr.io/r-wasm/webr:v0.4.0"
+	"image": "ghcr.io/r-wasm/webr:v0.4.2",
+
+	"mounts": [
+		"type=volume,target=${containerWorkspaceFolder}/node_modules"
+	]
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

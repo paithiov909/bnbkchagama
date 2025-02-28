@@ -1,5 +1,14 @@
-# bnbkchagama
-
+---
+title: bnbkchagama
+format: gfm
+knitr:
+  opts_chunk:
+    tidy: "styler"
+    collapse: true
+    comment: "#>"
+    dev: "ragg_png"
+    dpi: 300
+---
 
 ## What is this?
 
@@ -9,14 +18,13 @@ LLMを使って、入力されたユーザー名に似合いそうなグラブ�
 
 feature-extractionには、次のモデル（`Q8`で量子化されているもの）を利用しています。
 
-- [Snowflake/snowflake-arctic-embed-l-v2.0 · Hugging
-  Face](https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0)
-- [Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf · Hugging
-  Face](https://huggingface.co/Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf)
+- [Snowflake/snowflake-arctic-embed-l-v2.0 · Hugging Face](https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0)
+- [Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf · Hugging Face](https://huggingface.co/Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf)
 
 また、ベクトル検索は、[WebR](https://docs.r-wasm.org/webr/latest/)を使って、Rのコードを評価することでおこなっています。称号のベクトル表現をPCAによって次元削減した後、[RcppHNSW](https://github.com/jlmelville/rcpphnsw)でインデックスを作成し、ユーザー名のベクトル表現を同様にして次元削減したベクトルをクエリとして、近似最近傍探索しています。具体的には、だいたい次のような感じのことをしています。
 
-``` r
+```{r}
+#| label: exapmle-hnsw
 dat <- arrow::read_parquet("scripts/gbf-title-emb.parquet")
 
 pri <- prcomp(dat[, -1], center = TRUE, scale. = TRUE)
@@ -27,11 +35,7 @@ query <- predict(pri, as.matrix(dat[452, -1]))
 suggestions <- hnsw_search(matrix(query[, 1:50], nrow = 1), idx, k = 8)
 
 dat[452, "title"] # 仮のユーザー名
-#> [1] "レヴィオンの英雄"
 dat[as.integer(suggestions[["idx"]]), "title"] # 類似度が高い称号
-#> [1] "レヴィオンの英雄"     "ダルモアの英雄"       "再起の英雄"          
-#> [4] "ジェレミアの好敵手"   "ロンリーウルフ"       "レヴィオン王国騎士団"
-#> [7] "アビス・リベレータ"   "エンシェントヒーロー"
 ```
 
 ## Limitations

@@ -6,7 +6,7 @@
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
     "devUrl": "http://localhost:1420",
-    "frontendDist": "../dist"
+    "frontendDist": "../docs"
   },
   "app": {
     "windows": [
@@ -23,6 +23,8 @@
       },
       "csp": {
         "default-src": "'self' asset: https://asset.localhost https://webr.r-wasm.org/",
+        "connect-src": "ipc: https://ipc.localhost",
+        "style-src": "'unsafe-inline' 'self'",
         "script-src": "'self' 'unsafe-eval' asset: https://asset.localhost https://webr.r-wasm.org/",
         "worker-src": "'self' 'unsafe-eval' blob: asset: https://asset.localhost https://webr.r-wasm.org/"
       }
