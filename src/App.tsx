@@ -84,7 +84,7 @@ export const App = () => {
           >
             <label className="mb-6">
               <span className="text-color-red-500">【注意】</span>
-              このWebアプリはバカのためのアプリなので、
+              このWebアプリはバカのアプリなので、
               <span className="underline">アクセスするだけで、600MB程度のアセットのダウンロードが始まります</span>。
               使いたくない場合、このページを閉じてください
             </label>
@@ -112,9 +112,11 @@ export const App = () => {
           </article>
         </section>
       </main>
-      <footer className="grid place-content-center">
+      <footer className="grid place-content-center max-w-lg">
         <div>
-          <p>paithiov909</p>
+          <p>&copy; 2025 paithiov909.｜
+             <a href="https://github.com/paithiov909/bnbkchagama" target="_blank" rel="noopener noreferrer">GitHub repo</a>
+          </p>
         </div>
       </footer>
     </>
