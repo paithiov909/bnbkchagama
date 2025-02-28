@@ -40,7 +40,7 @@ dat[as.integer(suggestions[["idx"]]), "title"] # 類似度が高い称号
 
 ## Limitations
 
-- モデルをダウンロードするのに非常に時間がかかります（`onnx/model_uint8.onnx`という570MBのモデルがダウンロードされる）
+- モデルをダウンロードするのに非常に時間がかかります（`onnx/model_quantized.onnx`という570MBのモデルがダウンロードされる）
 - 日本語版の称号しか収録していません。また、収録している称号には漏れがある可能性があります
 
 ## Future plans?
