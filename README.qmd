@@ -16,7 +16,7 @@ LLMを使って、入力されたユーザー名に似合いそうなグラブ�
 
 この機能は、[Transformers.js](https://huggingface.co/docs/transformers.js/index)を使って、入力されたユーザー名のベクトル表現を得たうえで、あらかじめ作成しておいた称号のベクトル表現との類似度が高い称号を検索することによって実現しています。
 
-feature-extractionには、次のモデル（`Q8`で量子化されているもの）を利用しています。
+feature-extractionには、次のモデル（`Q8_0`で量子化されているもの）を利用しています。
 
 - [Snowflake/snowflake-arctic-embed-l-v2.0 · Hugging Face](https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0)
 - [Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf · Hugging Face](https://huggingface.co/Casual-Autopsy/snowflake-arctic-embed-l-v2.0-gguf)
